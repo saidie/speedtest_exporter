@@ -16,6 +16,7 @@ package main
 
 import (
 	"flag"
+	"strings"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
@@ -60,9 +61,9 @@ type Exporter struct {
 }
 
 // NewExporter returns an initialized Exporter.
-func NewExporter(config string, server string, interval time.Duration) (*Exporter, error) {
+func NewExporter(config string, server string, interval time.Duration, blacklist []string) (*Exporter, error) {
 	log.Infof("Setup Speedtest client with interval %s", interval)
-	client, err := speedtest.NewClient(config, server)
+	client, err := speedtest.NewClient(config, server, blacklist)
 	if err != nil {
 		return nil, fmt.Errorf("Can't create the Speedtest client: %s", err)
 	}
@@ -109,6 +110,7 @@ func main() {
 		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 		configURL     = flag.String("speedtest.config-url", "http://c.speedtest.net/speedtest-config.php?x="+uniuri.New(), "Speedtest configuration URL")
 		serverURL     = flag.String("speedtest.server-url", "http://c.speedtest.net/speedtest-servers-static.php?x="+uniuri.New(), "Speedtest server URL")
+		blacklist     = flag.String("blacklist", "", "Comma separated blacklist server IDs")
 		//interval      = flag.Int("interval", 60*time.Second, "Interval for metrics.")
 	)
 	flag.Parse()
@@ -122,7 +124,7 @@ func main() {
 	log.Infoln("Build context", prom_version.BuildContext())
 
 	interval := 60 * time.Second
-	exporter, err := NewExporter(*configURL, *serverURL, interval)
+	exporter, err := NewExporter(*configURL, *serverURL, interval, strings.Split(*blacklist, ","))
 	if err != nil {
 		log.Errorf("Can't create exporter : %s", err)
 		os.Exit(1)
