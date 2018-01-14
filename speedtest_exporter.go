@@ -28,8 +28,8 @@ import (
 	"github.com/prometheus/common/log"
 	prom_version "github.com/prometheus/common/version"
 
-	"github.com/nlamirault/speedtest_exporter/speedtest"
-	"github.com/nlamirault/speedtest_exporter/version"
+	"github.com/saidie/speedtest_exporter/speedtest"
+	"github.com/saidie/speedtest_exporter/version"
 )
 
 const (
